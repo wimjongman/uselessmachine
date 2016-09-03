@@ -27,7 +27,6 @@ void loop() {
 
 	reading = digitalRead(inPin);
 	boolean canflip = (millis() - time > debounce); // debounce
-	Serial.println(canflip);
 	if (canflip) {
 		if (state == HIGH && reading == LOW)
 			setLow();
@@ -45,6 +44,7 @@ void setHigh() {
 }
 
 void setLow() {
+	Serial.println("setLow");
 	state = LOW;
 	digitalWrite(outPin, LOW);
 	servo.write(0);
