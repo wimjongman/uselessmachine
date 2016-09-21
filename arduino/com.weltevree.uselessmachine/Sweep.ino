@@ -3,40 +3,38 @@
 
 Servo servoLid;
 Servo servoArm;
+Sleep sleep;
 
-int inPin = 2;         // the number of the input pin
-int outPin = 13;       // the number of the output pin
-int servoPinLid = 9;       // the servo pin
-int servoPinArm = 7;       // the servo pin
+int switchPin = 2;       // the number of the switch pin
+int ledPin = 13;         // the number of the led pin
+int servoPinLid = 8;     // the servo pin
+int servoPinArm = 9;     // the servo pin
 int ARMLOW = 75;
 int ARMHIGH = 180;
-int LIDHIGH = 70;
+int LIDHIGH = 35;
 int LIDLOW = 0;
 
-
-int state = HIGH;      // the current state of the output pin
+int state = LOW;      // the current state of the output pin
 int reading;           // the current reading from the input pin
 int servoState = 0;    // the position in degrees of the servo
+int counter = 0;       // How often did we do this already?
 
-
-// the follow variables are long's because the time, measured in miliseconds,
-// will quickly become a bigger number than can be stored in an int.
 long time = 0;         // the last time the output pin was toggled
 long debounce = 200;   // the debounce time, increase if the output flickers
 
 void setup() {
-	pinMode(inPin, INPUT);
-	pinMode(outPin, OUTPUT);
-	Serial.begin(9600);
-	servoLid.attach(servoPinLid);
-	servoArm.attach(servoPinArm);
+	pinMode(switchPin, INPUT);
+	pinMode(ledPin, OUTPUT);
+	attachServos();
+	setLow();
+	saveTime();
 }
 
 void loop() {
 
 	boolean canflip = (millis() - time > debounce); // debounce
 	if (canflip) {
-		reading = digitalRead(inPin);
+		reading = digitalRead(switchPin);
 		if (state == HIGH && reading == LOW) {
 			setLow();
 			saveTime();
@@ -51,19 +49,50 @@ void saveTime() {
 	time = millis();
 }
 
-void setLow() {
-	Serial.println("setLow");
-	state = LOW;
-	digitalWrite(outPin, LOW);
-	servoArm.write(ARMLOW);
-	delay(100);
+void attachServos() {
+	servoLid.attach(servoPinLid);
 	servoLid.write(LIDLOW);
+	servoArm.attach(servoPinArm);
+	servoArm.write(ARMLOW);
+}
+
+void detachServos() {
+	servoLid.detach();
+	servoArm.detach();
 }
 
 void setHigh() {
 	state = HIGH;
-	digitalWrite(outPin, HIGH);
-	servoLid.write(LIDHIGH);
-	delay(300);
+	doDelay();
+	digitalWrite(ledPin, HIGH);
+	for (int i = LIDLOW; i <= LIDHIGH; i++) {
+		servoLid.write(i);
+		delay(5);
+	}
 	servoArm.write(ARMHIGH);
+}
+
+void setLow() {
+	state = LOW;
+	digitalWrite(ledPin, LOW);
+	servoArm.write(ARMLOW);
+	int armpos = servoLid.read();
+	delay(100);
+	for (int i = armpos; i > LIDLOW; i--) {
+		servoLid.write(i);
+		delay(5);
+	}
+}
+
+void doDelay() {
+	if (counter < 5) {
+		counter++;
+		delay(1000);
+	} else if (counter < 7) {
+		counter++;
+		delay(500);
+	} else {
+		int rand = random(100, 1000);
+		delay(rand);
+	}
 }
