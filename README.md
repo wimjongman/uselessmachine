@@ -10,10 +10,6 @@ Welcome to our [reverse engineered useless machine](https://www.instagram.com/p/
 * Glue, preferably a [Hot Glue Gun](https://google.com/search?q=hot+glue+gun)
 * Solder and soldering iron
 
-## Order the needed parts
-You can order the needed parts from our webshop.
-
-
 ## Glueing. Warning.
 Make sure everyting is aligned and measured before starting to glue.
 
